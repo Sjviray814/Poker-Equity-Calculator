@@ -1,3 +1,4 @@
+package Structures;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -33,6 +34,10 @@ public class Deck {
         Card top = deck.get(0);
         deck.remove(top);
         return top;
+    }
+
+    public void remove(Card c) {
+        deck.remove(c);
     }
 
 

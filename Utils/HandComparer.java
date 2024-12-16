@@ -1,4 +1,7 @@
+package Utils;
 import java.util.*;
+
+import Structures.Card;
 
 public class HandComparer {
 
