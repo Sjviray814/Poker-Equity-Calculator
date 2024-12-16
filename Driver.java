@@ -26,20 +26,24 @@ public class Driver {
             
         long startTime = System.currentTimeMillis();
 
-        int totalHands = 1000000;
+        int totalHands = 5;
         for (int i = 0; i < totalHands; i++) {
             d.shuffle();
-            Card[] hand = new Card[5];
+            Card[] hand = new Card[7];
             for (int j = 0; j < hand.length; j++) {
                 hand[j] = d.draw();
-                // System.out.print(hand[j] + " ");
+                System.out.print(hand[j] + " ");
             }
-            // System.out.println(HandComparer.getHandType(hand));
-            String handrep = HandComparer.getHandType(hand);
-            frequencyMap.put(handrep.split(" ")[0], frequencyMap.getOrDefault(handrep.split(" ")[0], 0) + 1);
-            d.reorder();
+            System.out.println();
+            Card[] best = HandComparer.getBestHand(hand);
+            System.out.print("Best hand: ");
+            for (Card c : best) {
+                System.out.print(c + " ");
+            }
+            System.out.println();
+            System.out.println(HandComparer.getHandType(best));
         }
-        frequencyMap.forEach((key, value) -> System.out.println(key + ": " + 100.0*value/totalHands));
+        System.out.println();
 
         long endTime = System.currentTimeMillis();
         System.out.println((endTime - startTime)/1000.0);

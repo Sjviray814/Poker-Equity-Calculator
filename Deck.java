@@ -35,6 +35,7 @@ public class Deck {
         return top;
     }
 
+
     public String toString() {
         String deckString = String.format("Your current deck: \n");
         for (Card card : deck) {

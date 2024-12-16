@@ -5,6 +5,7 @@ public class HandComparer {
     private static final String[] RANKS = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
     private static final String[] REVERSE_RANKS = {"A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"};
     private static final String[] REVERSE_RANKS2 = {"A", "5", "4", "3", "2"};
+    private static final String[] HAND_CLASSES = {"SF", "Q", "FH", "F", "S", "TR", "TP", "P", "H"};
 
     private static final Map<String, Integer> RANK_MAP = new HashMap<>();
 
@@ -14,13 +15,104 @@ public class HandComparer {
         }
     }
 
+    private static final Map<String, Integer> CLASS_MAP = new HashMap<>();
+
+    static {
+        for (int i = 0; i < HAND_CLASSES.length; i++) {
+            CLASS_MAP.put(HAND_CLASSES[i], i);
+        }
+    }
+
+    /**
+     * Finds the strongest combination of cards.
+     *
+     * @param cards An array of Card objects (must contain 5 or more cards).
+     * @return An array representing the strongest hand of 5 cards.
+     */
+    public static Card[] getBestHand(Card[] cards) {
+        if (cards.length < 5) {
+            throw new IllegalArgumentException("The input array must contain at least 5 cards.");
+        }
+
+        Card[] strongestHand = null;
+        List<Card[]> combinations = new ArrayList<>();
+        generateCombinations(cards, 5, 0, new Card[5], 0, combinations);
+
+        for (Card[] combination : combinations) {
+            if (strongestHand == null || getWinner(combination, strongestHand) == 1) {
+                strongestHand = combination;
+            }
+        }
+
+        return strongestHand;
+    }
+
+    /**
+     * Generates all combinations of a given size from the input array.
+     *
+     * @param cards The input array of cards.
+     * @param size The size of each combination.
+     * @param start The starting index for combination generation.
+     * @param temp Temporary array to hold the current combination.
+     * @param index The current index in the temporary array.
+     * @param combinations The list to store all generated combinations.
+     */
+    private static void generateCombinations(Card[] cards, int size, int start, Card[] temp, int index, List<Card[]> combinations) {
+        if (index == size) {
+            combinations.add(temp.clone());
+            return;
+        }
+
+        for (int i = start; i <= cards.length - (size - index); i++) {
+            temp[index] = cards[i];
+            generateCombinations(cards, size, i + 1, temp, index + 1, combinations);
+        }
+    }
+
     public static int getWinner(Card[] hand1, Card[] hand2) {
         if (hand1.length < 5 || hand2.length < 5) {
             throw new IllegalArgumentException("Hand size cannot be less than 5.");
         }
-        // Logic to compare hands (not implemented in original code)
-        return 1;
+        String handType1 = getHandType(hand1);
+        String handType2 = getHandType(hand2);
+
+        String[] handSplit1 = handType1.split(" ");
+        String[] handSplit2 = handType2.split(" ");
+
+        if (classToInt(handSplit1[0]) < classToInt(handSplit2[0])) {
+            return 1;
+        } else if (classToInt(handSplit2[0]) < classToInt(handSplit1[0])) {
+            return 2;
+        } else {
+            for (int i = 1; i < handSplit1.length; i++) {
+                if (rankToInt(handSplit1[i]) > rankToInt(handSplit2[i])) {
+                    return 1;
+                } else if (rankToInt(handSplit1[i]) < rankToInt(handSplit2[i])) {
+                    return 2;
+                }
+            }
+        }
+
+        return 0;
     }
+
+
+
+    /**
+     * @param hand hand of 5 cards to determine type
+     * @return the string representation of the hand type
+     * @throws IllegalArgumentException if hand is not size 5
+     * 
+     * Straight Flush: SF r
+     * Quads: Q r k
+     * Boat: FH r1 r2
+     * Flush: F r1 r2 r3 r4 r5
+     * Straight: S r (highest)
+     * Trips: TR r k1 k2
+     * Two Pair: TP r1 r2 k
+     * Pair: P r k1 k2 k3
+     * High Card: H /k1 /k2 /k3 /k4 /k5
+     */
 
     public static String getHandType(Card[] hand) {
         if (hand.length < 5) {
@@ -134,6 +226,14 @@ public class HandComparer {
         Integer value = RANK_MAP.get(rank);
         if (value == null) {
             throw new IllegalArgumentException("Invalid rank: " + rank);
+        }
+        return value;
+    }
+
+    public static int classToInt(String handClass) {
+        Integer value = CLASS_MAP.get(handClass);
+        if (value == null) {
+            throw new IllegalArgumentException("Invalid rank: " + handClass);
         }
         return value;
     }
